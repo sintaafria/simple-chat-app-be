@@ -1,10 +1,9 @@
 const express = require("express")
 const dotenv = require("dotenv")
 const mongoose = require("mongoose")
-const bodyParser = require('body-parser')
+const authRoutes = require("./routes/authRoutes")
 const userRoutes = require("./routes/userRoutes")
 const { dbUsername, dbPassword, dbHost, dbName, dbAuthSource } = require("./config/db")
-const { getAllUsers } = require("./controller/userController")
 const { decodeToken } = require("./middleware/token")
 dotenv.config()
 
@@ -22,8 +21,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send("<h1>Welcome to simple chat api</h1>")
 })
-app.use('/api/auth', userRoutes)
+app.use('/api/auth', authRoutes)
 app.use(decodeToken());
-app.get('api/users', getAllUsers)
+app.use('/api', userRoutes)
 
 app.listen(PORT, () => console.log(`Server running at port: ${PORT}`))

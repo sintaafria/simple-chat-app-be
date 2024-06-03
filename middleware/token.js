@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const dotenv = require("dotenv")
 const User = require('../models/userModel')
+const { secretKey } = require('../config/db')
 dotenv.config()
 
 const encodeToken = function(payload){
@@ -28,7 +29,7 @@ function decodeToken(){
                 })
             }
 
-            req.user = jsonwebtoken.verify(token, secretKey);
+            req.user = jwt.verify(token, secretKey);
             let user = await User.findOne({token: {$in: [token]}});
             if (!user) {
                 return res.status(401).json({
