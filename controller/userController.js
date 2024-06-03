@@ -1,7 +1,5 @@
 const User = require("../models/userModel")
-const { encodeToken } = require("../middleware/token")
-
-
+const { encodeToken, getToken } = require("../middleware/token")
 
 const register = async function(req, res, next){
     try{
@@ -82,4 +80,21 @@ const getAllUsers = async function(req, res, next){
     }
 }
 
-module.exports = {register, login, getAllUsers}
+const logout = async (req, res, next) => {
+    try{
+        let token = getToken(req);
+        let user = await User.findOneAndUpdate({ token: { $in: token } }, { $pull: { token: token } }, { userFindAndModify: false });
+        if (!token || !user) {
+            res.send(400).json({
+                message: 'No user Found'
+            })
+        }
+        return res.status(200).json({
+            message: 'Logout Succesfully'
+        });
+    }catch(err){
+        next(err)
+    }
+};
+
+module.exports = {register, login, getAllUsers, logout}

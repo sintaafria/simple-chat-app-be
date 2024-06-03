@@ -49,4 +49,4 @@ function decodeToken(){
     }
 };
 
-module.exports = {encodeToken, decodeToken}
+module.exports = {encodeToken, decodeToken, getToken}
