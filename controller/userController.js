@@ -1,8 +1,7 @@
 const User = require("../models/userModel")
-const jwt = require('jsonwebtoken')
-const dotenv = require("dotenv")
+const { encodeToken } = require("../middleware/token")
 
-dotenv.config()
+
 
 const register = async function(req, res, next){
     try{
@@ -13,7 +12,7 @@ const register = async function(req, res, next){
                 name, email, password
             })
             await user.save()
-            const token = jwt.sign({_id: user._id}, process.env.SECRET_KEY)
+            const token = encodeToken({_id: user._id})
             user  = await User.findByIdAndUpdate(user._id, { $push: { token } })
                                 .select('-__v -createdAt -updatedAt -token -password')
             return res.status(201).json({
@@ -27,7 +26,7 @@ const register = async function(req, res, next){
         });
     }catch(err){
         if (err && err.name === 'ValidationError') {
-            return res.json({
+            return res.status(400).json({
                 error: 1,
                 message: err.message,
                 fields: err.errors
@@ -37,4 +36,50 @@ const register = async function(req, res, next){
     }
 }
 
-module.exports = {register}
+const login = async function(req, res, next){
+    try{
+        const {email, password} = req.body
+        let user = await User.findOne({email})
+        if(user && password && await user.matchPassword(password)){
+            const token = encodeToken({_id: user._id})
+            user = await User.findByIdAndUpdate(user._id, { $push: { token } })
+            .select('-__v -createdAt -updatedAt -token -password')
+            return res.status(200).json({
+                user,
+                token
+            })
+        }
+        return res.status(401).json({
+            message: "The email and password combination is incorrect."
+        })
+    }catch(err){
+        if (err && err.name === 'ValidationError') {
+            return res.status(400).json({
+                error: 1,
+                message: err.message,
+                fields: err.errors
+            })
+        }
+        next(err);
+    }
+}
+
+const getAllUsers = async function(req, res, next){
+    try{
+        const keyword = req.query.search
+          ? {
+              $or: [
+                { name: { $regex: req.query.search, $options: "i" } },
+                { email: { $regex: req.query.search, $options: "i" } },
+              ],
+            }
+          : {};
+      
+        const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+        return res.status(200).json(users);
+    }catch(err){
+        next(err);
+    }
+}
+
+module.exports = {register, login, getAllUsers}
