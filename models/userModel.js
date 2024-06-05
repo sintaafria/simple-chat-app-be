@@ -1,33 +1,33 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
 const userSchema = mongoose.Schema(
-  {
-    name: { type: "String", required: true },
-    email: { type: "String", unique: true, required: true },
-    password: { type: "String", required: true },
-    pic: {
-      type: "String",
-      required: true,
-      default:
-        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-    },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
-    token: [String]
-  },
-  { timestaps: true }
+	{
+		name: { type: "String", required: true },
+		email: { type: "String", unique: true, required: true },
+		password: { type: "String", required: true },
+		pic: {
+			type: "String",
+			required: true,
+			default:
+				"https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+		},
+		is_admin: {
+			type: Boolean,
+			required: true,
+			default: false,
+		},
+		token: [String],
+	},
+	{ timestaps: true }
 );
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+	return await bcrypt.compare(enteredPassword, this.password);
 };
-userSchema.pre("save", async function(){
-  const salt = await bcrypt.genSalt(10)
-  this.password = bcrypt.hashSync(this.password, salt)
-})
+userSchema.pre("save", async function () {
+	const salt = await bcrypt.genSalt(10);
+	this.password = bcrypt.hashSync(this.password, salt);
+});
 
 const User = mongoose.model("User", userSchema);
 
