@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 const {
 	dbUsername,
 	dbPassword,
@@ -34,5 +35,6 @@ app.use("/api/auth", authRoutes);
 app.use(decodeToken());
 app.use("/api", userRoutes);
 app.use("/api", chatRoutes);
+app.use("/api/message", messageRoutes);
 
 app.listen(PORT, () => console.log(`Server running at port: ${PORT}`));
