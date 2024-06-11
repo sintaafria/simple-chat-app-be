@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
@@ -17,6 +18,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3002;
+app.use(cors());
 
 mongoose.connect(
 	`mongodb://${
