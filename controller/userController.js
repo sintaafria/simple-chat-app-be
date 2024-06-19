@@ -87,9 +87,11 @@ const getAllUsers = async function (req, res, next) {
 			  }
 			: {};
 
-		const users = await User.find(keyword).find({
-			_id: { $ne: req.user._id },
-		});
+		const users = await User.find(keyword)
+			.find({
+				_id: { $ne: req.user._id },
+			})
+			.select("-__v -createdAt -updatedAt -token -password");
 		return res.status(200).json(users);
 	} catch (err) {
 		next(err);
