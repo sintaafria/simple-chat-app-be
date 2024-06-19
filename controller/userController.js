@@ -12,14 +12,10 @@ const register = async function (req, res, next) {
 				password,
 			});
 			await user.save();
-			const token = encodeToken({ _id: user._id });
-			user = await User.findByIdAndUpdate(user._id, {
-				$push: { token },
-			}).select("-__v -createdAt -updatedAt -token -password");
-			return res.status(201).json({
-				user,
-				token,
-			});
+			user = await User.findById(user._id).select(
+				"-__v -createdAt -updatedAt -token -password"
+			);
+			return res.status(201).json(user);
 		}
 		return res.status(400).json({
 			message: "email is already exist",
